@@ -12,9 +12,25 @@ export function getItem(key) {
     PREFIX + key
   );
 
-  return value ? JSON.parse(value) : null;
+  return value
+    ? JSON.parse(value)
+    : null;
 }
 
 export function removeItem(key) {
-  localStorage.removeItem(PREFIX + key);
+  localStorage.removeItem(
+    PREFIX + key
+  );
+}
+
+export function clearStorage() {
+  Object.keys(localStorage).forEach(
+    (key) => {
+      if (
+        key.startsWith(PREFIX)
+      ) {
+        localStorage.removeItem(key);
+      }
+    }
+  );
 }

@@ -1,33 +1,60 @@
-import { login } from "../api/auth.js";
+import {
+  login,
+  isAuthenticated,
+} from "../api/auth.js";
+
+const isLoginPage =
+  window.location.pathname.includes(
+    "index.html"
+  ) ||
+  window.location.pathname === "/";
+
+if (
+  isAuthenticated() &&
+  isLoginPage
+) {
+  window.location.href =
+    "./dashboard.html";
+}
 
 const form =
-  document.querySelector("#loginForm");
+  document.querySelector(
+    "#loginForm"
+  );
 
 const errorEl =
-  document.querySelector("#error");
+  document.querySelector(
+    "#error"
+  );
 
-form.addEventListener(
-  "submit",
-  async (e) => {
-    e.preventDefault();
+if (form) {
+  form.addEventListener(
+    "submit",
+    async (e) => {
 
-    const email =
-      form.email.value;
+      e.preventDefault();
 
-    const password =
-      form.password.value;
+      const email =
+        form.email.value;
 
-    try {
-      errorEl.textContent = "";
+      const password =
+        form.password.value;
 
-      await login(email, password);
+      try {
+        errorEl.textContent = "";
 
-      window.location.href =
-        "./dashboard.html";
+        await login(
+          email,
+          password
+        );
 
-    } catch (error) {
-      errorEl.textContent =
-        "Invalid email or password";
+        window.location.href =
+          "./dashboard.html";
+
+      } catch (error) {
+        errorEl.textContent =
+          "Invalid email or password";
+      }
     }
-  }
-);
+  );
+}

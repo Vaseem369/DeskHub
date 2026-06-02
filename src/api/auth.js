@@ -1,17 +1,19 @@
-import { get } from "./client.js";
+import { get }
+from "./client.js";
 
 import {
   setItem,
   getItem,
   removeItem,
-} from "../utils/storage.js";
+}
+from "../utils/storage.js";
 
 export async function login(
   email,
   password
 ) {
   const { data } = await get(
-    `/users?email=${email}`
+    `/users?email=${encodeURIComponent(email)}`
   );
 
   const user = data[0];
@@ -26,16 +28,25 @@ export async function login(
   }
 
   setItem("user", user);
-  setItem("token", "fake-token");
+
+  setItem(
+    "token",
+    "fake-jwt-token"
+  );
 
   return user;
 }
 
 export function logout() {
   removeItem("user");
+
   removeItem("token");
 }
 
 export function getCurrentUser() {
   return getItem("user");
+}
+
+export function isAuthenticated() {
+  return !!getItem("token");
 }

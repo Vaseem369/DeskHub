@@ -10,8 +10,10 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+
   background-color: #f4f7fb;
-  height: 100vh;
+
+  min-height: 100vh;
 
   display: flex;
   justify-content: center;
@@ -21,8 +23,9 @@ body {
 /* LOGIN CONTAINER */
 
 .login-container {
-  background-color: white;
   width: 400px;
+
+  background-color: white;
 
   padding: 40px;
 
@@ -46,10 +49,19 @@ body {
 #loginForm {
   display: flex;
   flex-direction: column;
+
   gap: 16px;
 }
 
-/* INPUTS */
+/* LABEL */
+
+#loginForm label {
+  font-size: 14px;
+
+  color: #334155;
+}
+
+/* INPUT */
 
 #loginForm input {
   padding: 12px;
@@ -61,8 +73,6 @@ body {
   font-size: 16px;
 
   outline: none;
-
-  transition: border-color 0.2s;
 }
 
 #loginForm input:focus {
@@ -85,22 +95,28 @@ body {
   font-size: 16px;
 
   cursor: pointer;
-
-  transition: background-color 0.2s;
 }
 
 #loginForm button:hover {
   background-color: #1d4ed8;
 }
 
-/* ERROR MESSAGE */
+/* ERROR */
 
 #error {
   color: red;
 
   text-align: center;
 
-  font-size: 14px;
-
   min-height: 18px;
+}
+
+/* DASHBOARD */
+
+.dashboard-container {
+  text-align: center;
+}
+
+.dashboard-container h1 {
+  margin-bottom: 20px;
 }
