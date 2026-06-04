@@ -1,42 +1,52 @@
 const BASE_URL =
   "http://localhost:3001";
 
-async function request(
+export async function request(
   endpoint,
   options = {}
 ) {
-  try {
-    const response = await fetch(
-      `${BASE_URL}${endpoint}`,
-      {
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+  const response = await fetch(
+    `${BASE_URL}${endpoint}`,
+    {
+      ...options,
 
-        ...options,
-      }
-    );
+      headers: {
+        "Content-Type":
+          "application/json",
 
-    if (!response.ok) {
-      throw new Error(
-        "Request failed"
-      );
+        ...options.headers,
+      },
     }
+  );
 
-    const data =
-      await response.json();
+  const contentType =
+    response.headers.get(
+      "content-type"
+    ) || "";
 
-    return {
-      data,
-      headers: response.headers,
-    };
+  const data = contentType.includes(
+    "application/json"
+  )
+    ? await response.json()
+    : await response.text();
 
-  } catch (error) {
-    console.error(error);
+  if (!response.ok) {
+    const message =
+      data?.message ||
+      data?.error ||
+      response.statusText ||
+      "Request failed";
 
-    throw error;
+    throw new Error(
+      `${response.status} ${message}`
+    );
   }
+
+  return {
+    data,
+    headers: response.headers,
+    status: response.status,
+  };
 }
 
 export function get(endpoint) {

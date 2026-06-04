@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Tickets</title>
+
+  <link
+    rel="stylesheet"
+    href="./styles/main.css"
+  />
+</head>
+
+<body data-page="tickets-list">
+
+  <main class="tickets-page">
+
+    <header class="tickets-header">
+
+      <h1>
+        Support Tickets
+      </h1>
+
+      <div class="tickets-header-actions">
+        <a
+          class="secondary-link"
+          href="./dashboard.html"
+        >
+          Back to Dashboard
+        </a>
+
+        <button
+          type="button"
+          id="newTicketBtn"
+        >
+          New Ticket
+        </button>
+      </div>
+
+    </header>
+
+    <section
+      class="tickets-toolbar"
+      aria-label="Ticket filters"
+    >
+      <div
+        class="filter-slot"
+        aria-label="Search"
+      ></div>
+
+      <div
+        class="filter-slot"
+        aria-label="Filters"
+      ></div>
+    </section>
+
+    <p
+      id="loading"
+      class="loading-state"
+      role="status"
+    >
+      Loading tickets...
+    </p>
+
+    <div
+      id="error"
+      class="error-state"
+      role="alert"
+    ></div>
+
+    <section
+      id="ticketsContainer"
+      aria-live="polite"
+    ></section>
+
+  </main>
+
+  <script
+    type="module"
+    src="./src/main.js"
+  ></script>
+
+</body>
+</html>

@@ -2,9 +2,10 @@ import { get }
 from "./client.js";
 
 import {
-  setItem,
-  getItem,
-  removeItem,
+  set,
+  get as getStoredValue,
+  remove,
+  clear,
 }
 from "../utils/storage.js";
 
@@ -27,26 +28,37 @@ export async function login(
     );
   }
 
-  setItem("user", user);
+  const safeUser = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  };
 
-  setItem(
+  set("user", safeUser);
+
+  set(
     "token",
     "fake-jwt-token"
   );
 
-  return user;
+  return safeUser;
 }
 
 export function logout() {
-  removeItem("user");
+  remove("user");
 
-  removeItem("token");
+  remove("token");
 }
 
 export function getCurrentUser() {
-  return getItem("user");
+  return getStoredValue("user");
 }
 
 export function isAuthenticated() {
-  return !!getItem("token");
+  return !!getStoredValue("token");
+}
+
+export function clearAuth() {
+  clear();
 }

@@ -25,6 +25,9 @@ const form =
 const errorEl =
   document.querySelector(
     "#error"
+  ) ||
+  document.querySelector(
+    "[data-error]"
   );
 
 if (form) {
@@ -34,14 +37,19 @@ if (form) {
 
       e.preventDefault();
 
+      const formData =
+        new FormData(form);
+
       const email =
-        form.email.value;
+        formData.get("email");
 
       const password =
-        form.password.value;
+        formData.get("password");
 
       try {
-        errorEl.textContent = "";
+        if (errorEl) {
+          errorEl.textContent = "";
+        }
 
         await login(
           email,
@@ -52,8 +60,10 @@ if (form) {
           "./dashboard.html";
 
       } catch (error) {
-        errorEl.textContent =
-          "Invalid email or password";
+        if (errorEl) {
+          errorEl.textContent =
+            "Invalid email or password";
+        }
       }
     }
   );

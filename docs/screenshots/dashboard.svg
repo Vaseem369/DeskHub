@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+  <rect width="960" height="540" fill="#f4f7fb"/>
+  <text x="70" y="78" font-family="Arial" font-size="13" font-weight="700" fill="#2563eb">DESKHUB</text>
+  <text x="70" y="120" font-family="Arial" font-size="34" font-weight="700" fill="#1e293b">Support Dashboard</text>
+  <rect x="700" y="72" width="120" height="40" rx="8" fill="#2563eb"/>
+  <text x="760" y="98" text-anchor="middle" font-family="Arial" font-size="14" fill="#fff">View Tickets</text>
+  <g fill="#fff" stroke="#dbe3ef">
+    <rect x="70" y="160" width="190" height="110" rx="8"/>
+    <rect x="280" y="160" width="190" height="110" rx="8"/>
+    <rect x="490" y="160" width="190" height="110" rx="8"/>
+    <rect x="700" y="160" width="190" height="110" rx="8"/>
+    <rect x="70" y="300" width="400" height="170" rx="8"/>
+    <rect x="490" y="300" width="400" height="170" rx="8"/>
+  </g>
+  <text x="95" y="195" font-family="Arial" font-size="13" fill="#64748b">Total</text>
+  <text x="95" y="240" font-family="Arial" font-size="34" font-weight="700" fill="#1e293b">24</text>
+  <text x="305" y="195" font-family="Arial" font-size="13" fill="#64748b">Open</text>
+  <text x="305" y="240" font-family="Arial" font-size="34" font-weight="700" fill="#1e293b">8</text>
+  <text x="515" y="195" font-family="Arial" font-size="13" fill="#64748b">In-Progress</text>
+  <text x="515" y="240" font-family="Arial" font-size="34" font-weight="700" fill="#1e293b">5</text>
+  <text x="725" y="195" font-family="Arial" font-size="13" fill="#64748b">Resolved</text>
+  <text x="725" y="240" font-family="Arial" font-size="34" font-weight="700" fill="#1e293b">11</text>
+  <text x="95" y="340" font-family="Arial" font-size="20" font-weight="700" fill="#1e293b">Recent 5 Tickets</text>
+  <text x="515" y="340" font-family="Arial" font-size="20" font-weight="700" fill="#1e293b">Queue Snapshot</text>
+</svg>

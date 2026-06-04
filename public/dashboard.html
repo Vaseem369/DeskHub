@@ -13,7 +13,7 @@
 
   <link
     rel="stylesheet"
-    href="./styles/main.css"
+    href="../styles/main.css"
   />
 </head>
 
@@ -38,7 +38,7 @@
       <div class="dashboard-actions">
         <a
           class="primary-link"
-          href="./tickets.html"
+          href="../tickets.html"
         >
           View Tickets
         </a>
@@ -54,12 +54,11 @@
     </header>
 
     <section
-      id="dashboardStats"
       class="dashboard-stats"
       aria-label="Ticket summary"
     >
       <article class="stat-card">
-        <span>Total Tickets</span>
+        <span>Total</span>
         <strong id="totalTickets">0</strong>
       </article>
 
@@ -90,34 +89,12 @@
       </article>
 
       <article class="dashboard-panel">
-        <h2>
-          Queue Snapshot
-        </h2>
+        <h2>Queue Snapshot</h2>
 
         <div
           id="statusBreakdown"
           class="metric-list"
         ></div>
-      </article>
-
-      <article class="dashboard-panel dashboard-panel-wide">
-        <h2>
-          Next Actions
-        </h2>
-
-        <div class="action-list">
-          <a href="./tickets.html">
-            Review ticket queue
-          </a>
-
-          <a href="./tickets.html?status=open">
-            Open tickets
-          </a>
-
-          <a href="./tickets.html?priority=urgent">
-            Urgent tickets
-          </a>
-        </div>
       </article>
     </section>
 
@@ -132,7 +109,7 @@
 
   <script
     type="module"
-    src="./src/main.js"
+    src="../src/main.js"
   ></script>
 
 </body>

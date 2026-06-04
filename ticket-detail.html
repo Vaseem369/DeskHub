@@ -1,1 +1,107 @@
-2
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Ticket Detail</title>
+
+  <link
+    rel="stylesheet"
+    href="./styles/main.css"
+  />
+</head>
+
+<body data-page="ticket-detail">
+
+  <main class="detail-page">
+    <header class="detail-header">
+      <div>
+        <a
+          class="back-link"
+          href="./tickets.html"
+        >
+          Back to tickets
+        </a>
+
+        <h1 id="ticketTitle">
+          Ticket Detail
+        </h1>
+      </div>
+
+      <div class="detail-actions">
+        <button
+          type="button"
+          id="deleteTicketBtn"
+          class="danger-button"
+        >
+          Delete
+        </button>
+      </div>
+    </header>
+
+    <p
+      id="detailLoading"
+      class="loading-state"
+      role="status"
+    >
+      Loading ticket...
+    </p>
+
+    <div
+      id="detailError"
+      class="error-state"
+      role="alert"
+      hidden
+    ></div>
+
+    <section
+      id="ticketInfo"
+      class="detail-panel"
+      aria-label="Ticket information"
+    ></section>
+
+    <section
+      class="detail-panel"
+      aria-labelledby="commentsTitle"
+    >
+      <h2 id="commentsTitle">
+        Comments
+      </h2>
+
+      <div id="commentsList"></div>
+
+      <form
+        id="commentForm"
+        class="comment-form"
+      >
+        <label for="commentBody">
+          Add Comment
+        </label>
+
+        <textarea
+          id="commentBody"
+          name="body"
+          rows="4"
+          required
+        ></textarea>
+
+        <button type="submit">
+          Add Comment
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <script
+    type="module"
+    src="./src/main.js"
+  ></script>
+
+</body>
+</html>

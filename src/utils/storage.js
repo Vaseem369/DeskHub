@@ -1,29 +1,35 @@
 const PREFIX = "deskhub_";
 
-export function setItem(key, value) {
+export function set(key, value) {
   localStorage.setItem(
     PREFIX + key,
     JSON.stringify(value)
   );
 }
 
-export function getItem(key) {
+export function get(key) {
   const value = localStorage.getItem(
     PREFIX + key
   );
 
-  return value
-    ? JSON.parse(value)
-    : null;
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
 }
 
-export function removeItem(key) {
+export function remove(key) {
   localStorage.removeItem(
     PREFIX + key
   );
 }
 
-export function clearStorage() {
+export function clear() {
   Object.keys(localStorage).forEach(
     (key) => {
       if (
@@ -34,3 +40,8 @@ export function clearStorage() {
     }
   );
 }
+
+export const setItem = set;
+export const getItem = get;
+export const removeItem = remove;
+export const clearStorage = clear;
