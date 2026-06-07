@@ -18,9 +18,11 @@ npm run dev
 
 3. Open the app:
 
-- UI: `http://localhost:8080`
-- API: `http://localhost:3001`
-- Tickets API check: `http://localhost:3001/tickets`
+- **Local UI:** `http://localhost:8080` (with `npm run dev`)
+- **Local API:** `http://localhost:3001`
+- **Production API (Render):** `https://deskhub-xktc.onrender.com` — used automatically when the site is not served from `localhost` / `127.0.0.1` (see `src/api/client.js`).
+
+Tickets API check (local): `http://localhost:3001/tickets`
 
 Demo login:
 

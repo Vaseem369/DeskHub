@@ -32,6 +32,8 @@ const child = spawn(
     "0.0.0.0",
     "--delay",
     "200",
+    "--middlewares",
+    join(root, "scripts", "cors-middleware.cjs"),
     "--port",
     String(port),
   ],

@@ -1,5 +1,13 @@
+const PRODUCTION_API_URL =
+  "https://deskhub-xktc.onrender.com";
+
 const BASE_URL =
-  "http://localhost:3001";
+  window.location.hostname ===
+    "localhost" ||
+  window.location.hostname ===
+    "127.0.0.1"
+    ? "http://localhost:3001"
+    : PRODUCTION_API_URL;
 
 export async function request(
   endpoint,

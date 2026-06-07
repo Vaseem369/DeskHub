@@ -7,7 +7,7 @@
   "type": "module",
 
   "scripts": {
-    "api": "json-server --watch db.json --port 3001 --delay 200",
+    "api": "json-server --watch db.json --port 3001 --delay 200 --middlewares scripts/cors-middleware.cjs",
 
     "serve": "live-server --port=8080 --no-browser",
 
