@@ -35,6 +35,12 @@ Demo login:
 
 ![Tickets list](docs/screenshots/tickets.svg)
 
+## Features
+
+- **Light / dark theme:** Use the **gear** control on the **top bar** (fixed on every page) to open **Settings** → **Appearance** → **Light mode** or **Dark mode**. Preference is stored in `localStorage` (`deskhub_theme`). An inline script in each HTML page applies the theme before CSS loads to reduce flash.
+- **Account in Settings:** When signed in, **Settings** shows your name, email, and role, plus **Log out**. On the login page, account details are hidden until you sign in.
+- **CSV export:** On the tickets list, **Download CSV** saves all tickets that match the current filters and sort (not only the visible page). The file is UTF-8 with a BOM for Excel.
+
 ## Architecture Decisions
 
 - Plain ES modules keep the project lightweight and easy to inspect.

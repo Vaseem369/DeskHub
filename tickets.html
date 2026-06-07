@@ -9,6 +9,24 @@
     content="width=device-width, initial-scale=1.0"
   />
 
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem(
+          "deskhub_theme"
+        );
+        if (!raw) return;
+        var t = JSON.parse(raw);
+        if (t === "dark" || t === "light") {
+          document.documentElement.setAttribute(
+            "data-theme",
+            t
+          );
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <title>Tickets</title>
 
   <link
@@ -40,6 +58,14 @@
           id="newTicketBtn"
         >
           New Ticket
+        </button>
+
+        <button
+          type="button"
+          id="downloadTicketsCsvBtn"
+          class="secondary-button"
+        >
+          Download CSV
         </button>
       </div>
 

@@ -5,7 +5,6 @@ import {
   set,
   get as getStoredValue,
   remove,
-  clear,
 }
 from "../utils/storage.js";
 
@@ -60,5 +59,6 @@ export function isAuthenticated() {
 }
 
 export function clearAuth() {
-  clear();
+  remove("user");
+  remove("token");
 }

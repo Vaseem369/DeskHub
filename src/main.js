@@ -1,3 +1,9 @@
+import {
+  initSettings,
+} from "./utils/settings.js";
+
+initSettings();
+
 import "./modules/auth.js";
 
 const page =

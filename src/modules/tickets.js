@@ -23,6 +23,11 @@ import {
 } from "./ui.js";
 
 import {
+  rowsToCsv,
+  downloadTextFile,
+} from "../utils/csv.js";
+
+import {
   validateField,
   validateForm,
   validators,
@@ -73,6 +78,11 @@ const newTicketBtn =
     "#newTicketBtn"
   );
 
+const downloadCsvBtn =
+  document.querySelector(
+    "#downloadTicketsCsvBtn"
+  );
+
 let tickets = [];
 let users = [];
 let controls = {};
@@ -91,6 +101,7 @@ export async function initTicketsList() {
   readStateFromUrl();
   renderFilters();
   bindNewTicketButton();
+  bindDownloadCsvButton();
 
   try {
     users = await listUsers();
@@ -109,7 +120,12 @@ export async function refresh() {
 
   try {
     const queryString =
-      buildQueryString(state);
+      buildQueryString(
+        state,
+        {
+          paginate: true,
+        }
+      );
 
     const result =
       await listTickets(queryString);
@@ -231,6 +247,161 @@ function bindNewTicketButton() {
     "click",
     openCreateTicketModal
   );
+}
+
+function bindDownloadCsvButton() {
+  downloadCsvBtn?.addEventListener(
+    "click",
+    downloadTicketsCsv
+  );
+}
+
+function ticketAssigneeLabel(
+  ticket
+) {
+  const a = ticket.assignee;
+
+  if (
+    a !== undefined &&
+    a !== null &&
+    a !== ""
+  ) {
+    return String(a);
+  }
+
+  const id = ticket.assignedTo;
+
+  if (
+    id === undefined ||
+    id === null
+  ) {
+    return "";
+  }
+
+  const user = users.find(
+    (u) => u.id === id
+  );
+
+  return user
+    ? user.name
+    : String(id);
+}
+
+function ticketsToCsvMatrix(
+  items
+) {
+  const header = [
+    "ID",
+    "Title",
+    "Customer",
+    "Customer Email",
+    "Status",
+    "Priority",
+    "Assignee",
+    "Category",
+    "Created",
+    "Updated",
+    "Description",
+  ];
+
+  const rows =
+    items.map((t) => [
+      t.id,
+      t.title,
+      t.customer ??
+        t.customerName ??
+        "",
+      t.customerEmail ?? "",
+      t.status ?? "",
+      t.priority ?? "",
+      ticketAssigneeLabel(t),
+      t.category ?? "",
+      t.createdAt ?? "",
+      t.updatedAt ?? "",
+      t.description ?? "",
+    ]);
+
+  return [header, ...rows];
+}
+
+async function downloadTicketsCsv() {
+  if (state.totalCount === 0) {
+    toast(
+      "No tickets match the current filters",
+      {
+        type: "error",
+      }
+    );
+
+    return;
+  }
+
+  const prevText =
+    downloadCsvBtn?.textContent;
+
+  if (downloadCsvBtn) {
+    downloadCsvBtn.disabled = true;
+    downloadCsvBtn.textContent =
+      "Exporting…";
+  }
+
+  try {
+    const queryString =
+      buildQueryString(
+        state,
+        {
+          paginate: false,
+        }
+      );
+
+    const {
+      tickets: allTickets,
+    } = await listTickets(
+      queryString
+    );
+
+    const sorted =
+      sortTickets(allTickets);
+
+    const matrix =
+      ticketsToCsvMatrix(sorted);
+
+    const csv =
+      rowsToCsv(matrix);
+
+    const stamp =
+      new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replaceAll(":", "-");
+
+    downloadTextFile(
+      `deskhub-tickets-${stamp}.csv`,
+      `\uFEFF${csv}`
+    );
+
+    toast(
+      `Downloaded ${sorted.length} ticket(s)`
+    );
+  } catch (error) {
+    console.error(error);
+
+    toast(
+      "Could not export tickets",
+      {
+        type: "error",
+      }
+    );
+  } finally {
+    if (downloadCsvBtn) {
+      downloadCsvBtn.disabled = false;
+
+      if (prevText) {
+        downloadCsvBtn.textContent =
+          prevText;
+      }
+    }
+  }
 }
 
 function openCreateTicketModal() {
@@ -488,7 +659,14 @@ function fieldMarkup(
   `;
 }
 
-export function buildQueryString(values) {
+export function buildQueryString(
+  values,
+  options = {}
+) {
+  const {
+    paginate = true,
+  } = options;
+
   const params =
     new URLSearchParams();
 
@@ -535,8 +713,28 @@ export function buildQueryString(values) {
     params.set("_order", "asc");
   }
 
-  params.set("_page", values.page);
-  params.set("_limit", PAGE_SIZE);
+  if (paginate) {
+    params.set(
+      "_page",
+      values.page
+    );
+    params.set(
+      "_limit",
+      PAGE_SIZE
+    );
+  } else {
+    params.set("_page", "1");
+    params.set(
+      "_limit",
+      String(
+        Math.max(
+          Number(values.totalCount) ||
+            0,
+          1
+        )
+      )
+    );
+  }
 
   return params.toString();
 }

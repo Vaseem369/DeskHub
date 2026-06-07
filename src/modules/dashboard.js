@@ -1,5 +1,4 @@
 import {
-  clearAuth,
   getCurrentUser,
   isAuthenticated,
 } from "../api/auth.js";
@@ -55,11 +54,6 @@ const errorEl =
     "#dashboardError"
   );
 
-const logoutBtn =
-  document.querySelector(
-    "#logoutBtn"
-  );
-
 export async function initDashboard() {
   if (!isAuthenticated()) {
     window.location.href =
@@ -75,15 +69,6 @@ export async function initDashboard() {
     user?.name
       ? `Welcome back, ${user.name}`
       : "Welcome back";
-
-  logoutBtn.addEventListener(
-    "click",
-    () => {
-      clearAuth();
-      window.location.href =
-        `${pagePrefix()}index.html`;
-    }
-  );
 
   try {
     showLoader("Loading dashboard...");
