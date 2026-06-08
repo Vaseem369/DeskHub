@@ -1,9 +1,11 @@
 import {
   addComment,
+  deleteComment,
   deleteTicket,
   getTicket,
   listComments,
   listUsers,
+  updateComment,
   updateTicket,
 } from "../api/tickets.js";
 
@@ -54,6 +56,21 @@ const deleteBtn =
     "#deleteTicketBtn"
   );
 
+const editBtn =
+  document.querySelector(
+    "#editTicketBtn"
+  );
+
+const cancelEditBtn =
+  document.querySelector(
+    "#cancelEditBtn"
+  );
+
+const saveTicketBtn =
+  document.querySelector(
+    "#saveTicketBtn"
+  );
+
 const commentForm =
   document.querySelector(
     "#commentForm"
@@ -68,6 +85,8 @@ let ticket;
 let comments = [];
 let users = [];
 let ticketId;
+let editMode = false;
+let commentDeleteBound = false;
 
 export async function initTicketDetail() {
   if (!isAuthenticated()) {
@@ -91,7 +110,21 @@ export async function initTicketDetail() {
   ticketId = id;
   bindDeleteButton(id);
   bindCommentForm();
+  bindEditControls();
+  bindCommentDeleteActions();
   await loadTicket(id);
+}
+
+async function fetchTicketData(id) {
+  [
+    ticket,
+    comments,
+    users,
+  ] = await Promise.all([
+    getTicket(id),
+    listComments(id),
+    listUsers(),
+  ]);
 }
 
 async function loadTicket(id) {
@@ -99,16 +132,9 @@ async function loadTicket(id) {
   setError("");
 
   try {
-    [
-      ticket,
-      comments,
-      users,
-    ] = await Promise.all([
-      getTicket(id),
-      listComments(id),
-      listUsers(),
-    ]);
-
+    await fetchTicketData(id);
+    editMode = false;
+    setEditToolbar();
     renderTicket();
     renderComments();
   } catch (error) {
@@ -121,17 +147,279 @@ async function loadTicket(id) {
   }
 }
 
+function setEditToolbar() {
+  if (editBtn) {
+    editBtn.hidden = editMode;
+  }
+
+  if (cancelEditBtn) {
+    cancelEditBtn.hidden = !editMode;
+  }
+
+  if (saveTicketBtn) {
+    saveTicketBtn.hidden = !editMode;
+  }
+
+  if (deleteBtn) {
+    deleteBtn.disabled = editMode;
+  }
+
+  if (commentForm) {
+    commentForm.hidden = editMode;
+  }
+}
+
+function bindEditControls() {
+  editBtn?.addEventListener(
+    "click",
+    () => {
+      editMode = true;
+      setEditToolbar();
+      renderTicket();
+      renderComments();
+    }
+  );
+
+  cancelEditBtn?.addEventListener(
+    "click",
+    () => {
+      editMode = false;
+      setEditToolbar();
+      renderTicket();
+      renderComments();
+    }
+  );
+
+  saveTicketBtn?.addEventListener(
+    "click",
+    saveTicketEdits
+  );
+}
+
+function bindCommentDeleteActions() {
+  if (commentDeleteBound || !commentsEl) {
+    return;
+  }
+
+  commentDeleteBound = true;
+
+  commentsEl.addEventListener(
+    "click",
+    async (event) => {
+      const btn =
+        event.target.closest(
+          "[data-delete-comment]"
+        );
+
+      if (!btn) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const commentId =
+        btn.dataset.deleteComment;
+
+      if (!commentId) {
+        return;
+      }
+
+      const confirmed =
+        await confirmDialog({
+          title: "Delete comment",
+          message:
+            "This comment will be permanently removed.",
+          confirmText: "Delete",
+        });
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        showLoader(
+          "Deleting comment..."
+        );
+        await deleteComment(
+          commentId
+        );
+        comments =
+          await listComments(
+            ticketId
+          );
+        renderComments();
+        toast("Comment deleted");
+      } catch (error) {
+        console.error(error);
+        toast(
+          "Could not delete comment",
+          {
+            type: "error",
+          }
+        );
+      } finally {
+        hideLoader();
+      }
+    }
+  );
+}
+
+async function saveTicketEdits() {
+  if (!saveTicketBtn) {
+    return;
+  }
+
+  saveTicketBtn.disabled = true;
+  showLoader("Saving changes...");
+
+  try {
+    const statusEl =
+      infoEl.querySelector(
+        '[data-edit-field="status"]'
+      );
+
+    const priorityEl =
+      infoEl.querySelector(
+        '[data-edit-field="priority"]'
+      );
+
+    const assigneeEl =
+      infoEl.querySelector(
+        '[data-edit-field="assignee"]'
+      );
+
+    const updates = {};
+
+    if (statusEl) {
+      const v = statusEl.value;
+
+      if (v !== (ticket.status || "")) {
+        updates.status = v;
+      }
+    }
+
+    if (priorityEl) {
+      const v = priorityEl.value;
+
+      if (v !== (ticket.priority || "")) {
+        updates.priority = v;
+      }
+    }
+
+    if (assigneeEl) {
+      const v = assigneeEl.value;
+
+      if (v !== (ticket.assignee || "")) {
+        updates.assignee = v;
+      }
+    }
+
+    if (
+      Object.keys(updates).length > 0
+    ) {
+      updates.updatedAt =
+        new Date().toISOString();
+
+      const updated =
+        await updateTicket(
+          ticket.id,
+          updates
+        );
+
+      ticket = {
+        ...ticket,
+        ...updated,
+      };
+    }
+
+    const textareas =
+      commentsEl.querySelectorAll(
+        "[data-comment-edit]"
+      );
+
+    for (const ta of textareas) {
+      const id = ta.dataset.commentEdit;
+      const next =
+        ta.value.trim();
+      const orig = comments.find(
+        (c) => String(c.id) === String(id)
+      );
+
+      if (!orig) {
+        continue;
+      }
+
+      const prev =
+        commentText(orig).trim();
+
+      if (next === prev) {
+        continue;
+      }
+
+      if (!next) {
+        throw new Error(
+          "Comment text cannot be empty"
+        );
+      }
+
+      await updateComment(id, {
+        body: next,
+        content: next,
+      });
+    }
+
+    await fetchTicketData(ticketId);
+    editMode = false;
+    setEditToolbar();
+    renderTicket();
+    renderComments();
+    toast("Changes saved");
+  } catch (error) {
+    console.error(error);
+    toast(
+      error?.message ||
+        "Could not save changes",
+      {
+        type: "error",
+      }
+    );
+  } finally {
+    saveTicketBtn.disabled = false;
+    hideLoader();
+  }
+}
+
+function commentText(comment) {
+  return (
+    comment?.body ??
+    comment?.text ??
+    comment?.content ??
+    ""
+  );
+}
+
+function commentAuthor(comment) {
+  if (comment.author) {
+    return comment.author;
+  }
+
+  if (comment.authorId) {
+    const u = users.find(
+      (x) => x.id === comment.authorId
+    );
+
+    return u?.name || "Support";
+  }
+
+  return "Support";
+}
+
 function renderTicket() {
   titleEl.textContent =
     ticket.title || `Ticket #${ticket.id}`;
 
-  infoEl.innerHTML = `
-    <dl class="detail-grid">
-      ${detailItem("ID", ticket.id)}
-      ${detailItem("Title", ticket.title)}
-      ${detailItem("Customer", ticket.customer)}
-      ${detailItem("Customer Email", ticket.customerEmail)}
-      ${detailControl(
+  const statusBlock = editMode
+    ? detailEditSelect(
         "Status",
         "status",
         ticket.status,
@@ -141,8 +429,14 @@ function renderTicket() {
           ["resolved", "Resolved"],
           ["closed", "Closed"],
         ]
-      )}
-      ${detailControl(
+      )
+    : detailItem(
+        "Status",
+        ticket.status || "-"
+      );
+
+  const priorityBlock = editMode
+    ? detailEditSelect(
         "Priority",
         "priority",
         ticket.priority,
@@ -152,18 +446,39 @@ function renderTicket() {
           ["high", "High"],
           ["urgent", "Urgent"],
         ]
-      )}
-      ${detailControl(
+      )
+    : detailItem(
+        "Priority",
+        ticket.priority || "-"
+      );
+
+  const assigneeValue =
+    ticket.assignee || "";
+
+  const assigneeBlock = editMode
+    ? detailEditSelect(
         "Assignee",
         "assignee",
-        ticket.assignee,
-        users.map(
-          (user) => [
-            user.name,
-            user.name,
-          ]
-        )
-      )}
+        assigneeValue,
+        users.map((user) => [
+          user.name,
+          user.name,
+        ])
+      )
+    : detailItem(
+        "Assignee",
+        assigneeValue || "-"
+      );
+
+  infoEl.innerHTML = `
+    <dl class="detail-grid">
+      ${detailItem("ID", ticket.id)}
+      ${detailItem("Title", ticket.title)}
+      ${detailItem("Customer", ticket.customer)}
+      ${detailItem("Customer Email", ticket.customerEmail)}
+      ${statusBlock}
+      ${priorityBlock}
+      ${assigneeBlock}
       ${detailItem(
         "Created",
         formatDateTime(ticket.createdAt)
@@ -180,54 +495,6 @@ function renderTicket() {
       ${extraFieldsMarkup()}
     </dl>
   `;
-
-  infoEl
-    .querySelectorAll("[data-ticket-field]")
-    .forEach((select) => {
-      select.addEventListener(
-        "change",
-        async () => {
-          const field =
-            select.dataset.ticketField;
-          const previous =
-            ticket[field];
-
-          select.disabled = true;
-
-          try {
-            const updated =
-              await updateTicket(
-                ticket.id,
-                {
-                  [field]: select.value,
-                  updatedAt:
-                    new Date().toISOString(),
-                }
-              );
-
-            ticket = {
-              ...ticket,
-              ...updated,
-            };
-
-            toast(
-              `${fieldLabel(field)} updated`
-            );
-            renderTicket();
-          } catch (error) {
-            console.error(error);
-            select.value = previous;
-            toast(
-              `Could not update ${fieldLabel(field).toLowerCase()}`,
-              {
-                type: "error",
-              }
-            );
-            select.disabled = false;
-          }
-        }
-      );
-    });
 }
 
 function extraFieldsMarkup() {
@@ -276,23 +543,83 @@ function renderComments() {
     return;
   }
 
-  commentsEl.innerHTML = comments.map(
-    (comment) => `
+  if (editMode) {
+    commentsEl.innerHTML = comments
+      .map(
+        (comment) => `
+      <article
+        class="comment-item comment-item-edit"
+      >
+        <header class="comment-item-header">
+          <div>
+            <strong>
+              ${escapeHtml(
+                commentAuthor(comment)
+              )}
+            </strong>
+            <span>
+              ${escapeHtml(
+                formatRelative(comment.createdAt)
+              )}
+            </span>
+          </div>
+          <button
+            type="button"
+            class="comment-delete-btn danger-button"
+            data-delete-comment="${escapeHtml(comment.id)}"
+            aria-label="Delete comment"
+          >
+            Delete
+          </button>
+        </header>
+        <textarea
+          data-comment-edit="${escapeHtml(comment.id)}"
+          rows="4"
+          aria-label="Edit comment"
+        >${escapeHtml(
+          commentText(comment)
+        )}</textarea>
+      </article>
+    `
+      )
+      .join("");
+
+    return;
+  }
+
+  commentsEl.innerHTML = comments
+    .map(
+      (comment) => `
       <article class="comment-item">
-        <header>
-          <strong>
-            ${escapeHtml(comment.author || "Support")}
-          </strong>
-          <span>
-            ${escapeHtml(formatRelative(comment.createdAt))}
-          </span>
+        <header class="comment-item-header">
+          <div>
+            <strong>
+              ${escapeHtml(
+                commentAuthor(comment)
+              )}
+            </strong>
+            <span>
+              ${escapeHtml(
+                formatRelative(comment.createdAt)
+              )}
+            </span>
+          </div>
+          <button
+            type="button"
+            class="comment-delete-btn danger-button"
+            data-delete-comment="${escapeHtml(comment.id)}"
+            aria-label="Delete comment"
+          >
+            Delete
+          </button>
         </header>
         <p>
-          ${escapeHtml(comment.body || comment.text)}
+          ${escapeHtml(commentText(comment))}
         </p>
       </article>
     `
-  ).join("");
+    )
+    .join("");
 }
 
 function bindCommentForm() {
@@ -300,6 +627,10 @@ function bindCommentForm() {
     "submit",
     async (event) => {
       event.preventDefault();
+
+      if (editMode) {
+        return;
+      }
 
       const body =
         commentBody.value.trim();
@@ -358,6 +689,10 @@ function bindDeleteButton(id) {
   deleteBtn?.addEventListener(
     "click",
     async () => {
+      if (editMode) {
+        return;
+      }
+
       const confirmed =
         await confirmDialog({
           title: "Delete ticket",
@@ -384,8 +719,7 @@ function bindDeleteButton(id) {
             type: "error",
           }
         );
-      }
-      finally {
+      } finally {
         hideLoader();
       }
     }
@@ -405,7 +739,7 @@ function detailItem(
   `;
 }
 
-function detailControl(
+function detailEditSelect(
   label,
   field,
   value,
@@ -427,7 +761,7 @@ function detailControl(
       <dt>${escapeHtml(label)}</dt>
       <dd>
         <select
-          data-ticket-field="${field}"
+          data-edit-field="${field}"
           aria-label="${escapeHtml(label)}"
         >
           ${controlOptions.map(

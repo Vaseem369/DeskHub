@@ -295,7 +295,8 @@
       "customerEmail": "harshit@gmail.com",
       "assignedTo": 3,
       "createdAt": "2026-05-07T11:45:00Z",
-      "updatedAt": "2026-05-07T11:45:00Z"
+      "updatedAt": "2026-06-08T09:19:42.478Z",
+      "assignee": "Priya Sharma"
     },
     {
       "id": 21,
@@ -334,7 +335,8 @@
       "customerEmail": "priyanka.b@health.in",
       "assignedTo": null,
       "createdAt": "2026-05-06T20:30:00Z",
-      "updatedAt": "2026-05-06T20:30:00Z"
+      "updatedAt": "2026-06-08T09:34:56.122Z",
+      "assignee": "Riya Singh"
     },
     {
       "id": 24,

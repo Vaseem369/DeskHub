@@ -91,6 +91,26 @@ export async function addComment(comment) {
   return data;
 }
 
+export async function updateComment(
+  id,
+  updates
+) {
+  const { data } = await patch(
+    `/comments/${id}`,
+    updates
+  );
+
+  return data;
+}
+
+export async function deleteComment(id) {
+  const { data } = await del(
+    `/comments/${id}`
+  );
+
+  return data;
+}
+
 export async function listUsers() {
   const { data } = await get(
     "/users"

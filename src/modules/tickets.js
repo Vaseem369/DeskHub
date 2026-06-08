@@ -124,6 +124,7 @@ export async function refresh() {
         state,
         {
           paginate: true,
+          users,
         }
       );
 
@@ -209,6 +210,7 @@ export function renderTable(items) {
             <th scope="col">Status</th>
             <th scope="col">Assignee</th>
             <th scope="col">Created</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
 
@@ -222,12 +224,28 @@ export function renderTable(items) {
                     ${escapeHtml(ticket.title)}
                   </a>
                 </td>
-                <td>${escapeHtml(ticket.customer)}</td>
+                <td>${escapeHtml(
+                  ticket.customerName ??
+                    ticket.customer ??
+                    ""
+                )}</td>
                 <td>${escapeHtml(ticket.priority)}</td>
                 <td>${escapeHtml(ticket.status)}</td>
-                <td>${escapeHtml(ticket.assignee)}</td>
+                <td>${escapeHtml(
+                  ticketAssigneeLabel(
+                    ticket
+                  )
+                )}</td>
                 <td>
                   ${formatDate(ticket.createdAt)}
+                </td>
+                <td>
+                  <a
+                    class="secondary-link tickets-table-edit"
+                    href="./ticket-detail.html?id=${encodeURIComponent(ticket.id)}"
+                  >
+                    Edit
+                  </a>
                 </td>
               </tr>
             `
@@ -351,6 +369,7 @@ async function downloadTicketsCsv() {
         state,
         {
           paginate: false,
+          users,
         }
       );
 
@@ -665,6 +684,7 @@ export function buildQueryString(
 ) {
   const {
     paginate = true,
+    users = [],
   } = options;
 
   const params =
@@ -692,10 +712,16 @@ export function buildQueryString(
   }
 
   if (values.assignee) {
-    params.set(
-      "assignee",
-      values.assignee
+    const user = users.find(
+      (u) => u.name === values.assignee
     );
+
+    if (user != null) {
+      params.set(
+        "assignedTo",
+        String(user.id)
+      );
+    }
   }
 
   if (values.sort === "newest") {
@@ -807,6 +833,17 @@ function renderFilters() {
         )}
       </select>
     </label>
+
+    <div class="filter-control filter-reset-control">
+      <span>Reset</span>
+      <button
+        type="button"
+        id="resetTicketFiltersBtn"
+        class="secondary-button"
+      >
+        Clear filters
+      </button>
+    </div>
   `;
 
   controls = {
@@ -858,6 +895,46 @@ function renderFilters() {
       }
     );
   }
+
+  document
+    .querySelector(
+      "#resetTicketFiltersBtn"
+    )
+    ?.addEventListener(
+      "click",
+      resetFilters
+    );
+}
+
+function resetFilters() {
+  state.search = "";
+  state.status = "";
+  state.priority = "";
+  state.assignee = "";
+  state.sort = "newest";
+  state.page = 1;
+
+  if (controls.search) {
+    controls.search.value = "";
+  }
+
+  if (controls.status) {
+    controls.status.value = "";
+  }
+
+  if (controls.priority) {
+    controls.priority.value = "";
+  }
+
+  if (controls.assignee) {
+    controls.assignee.value = "";
+  }
+
+  if (controls.sort) {
+    controls.sort.value = "newest";
+  }
+
+  void refresh();
 }
 
 function renderAssigneeOptions() {
