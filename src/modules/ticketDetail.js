@@ -41,11 +41,6 @@ const commentsEl =
     "#commentsList"
   );
 
-const loadingEl =
-  document.querySelector(
-    "#detailLoading"
-  );
-
 const errorEl =
   document.querySelector(
     "#detailError"
@@ -103,7 +98,7 @@ export async function initTicketDetail() {
 
   if (!id) {
     setError("Missing ticket id.");
-    setLoading(false);
+    hideLoader();
     return;
   }
 
@@ -128,7 +123,7 @@ async function fetchTicketData(id) {
 }
 
 async function loadTicket(id) {
-  setLoading(true);
+  showLoader("Loading ticket...");
   setError("");
 
   try {
@@ -143,7 +138,7 @@ async function loadTicket(id) {
       "Failed to load ticket. Check that json-server is running."
     );
   } finally {
-    setLoading(false);
+    hideLoader();
   }
 }
 
@@ -786,12 +781,6 @@ function fieldLabel(field) {
     .replace(/^./, (char) =>
       char.toUpperCase()
     );
-}
-
-function setLoading(isLoading) {
-  if (loadingEl) {
-    loadingEl.hidden = !isLoading;
-  }
 }
 
 function setError(message) {

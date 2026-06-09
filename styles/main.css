@@ -30,7 +30,6 @@
   --color-focus-outline: rgba(37, 99, 235, 0.18);
   --shadow-login: 0 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-card: 0 8px 24px rgba(15, 23, 42, 0.06);
-  --shadow-loader: 0 20px 50px rgba(15, 23, 42, 0.18);
   --shadow-modal: 0 24px 64px rgba(15, 23, 42, 0.28);
   --shadow-toast: 0 12px 28px rgba(15, 23, 42, 0.18);
   --color-danger: #b42318;
@@ -42,7 +41,7 @@
   --color-disabled-bg: #f1f5f9;
   --color-link: #2563eb;
   --color-modal-overlay: rgba(15, 23, 42, 0.45);
-  --color-loader-backdrop: rgba(248, 250, 252, 0.78);
+  --color-loader-backdrop: rgba(248, 250, 252, 0.94);
   --color-spinner-track: #dbeafe;
   --color-toast-success: #166534;
   --color-tickets-back: #dc2626;
@@ -78,7 +77,6 @@ html[data-theme="dark"] {
   --color-focus-outline: rgba(96, 165, 250, 0.35);
   --shadow-login: 0 4px 12px rgba(0, 0, 0, 0.45);
   --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-loader: 0 20px 50px rgba(0, 0, 0, 0.45);
   --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.55);
   --shadow-toast: 0 12px 28px rgba(0, 0, 0, 0.4);
   --color-danger: #ef4444;
@@ -90,7 +88,7 @@ html[data-theme="dark"] {
   --color-disabled-bg: #0f172a;
   --color-link: #60a5fa;
   --color-modal-overlay: rgba(2, 6, 23, 0.78);
-  --color-loader-backdrop: rgba(15, 23, 42, 0.88);
+  --color-loader-backdrop: rgba(15, 23, 42, 0.94);
   --color-spinner-track: #334155;
   --color-toast-success: #166534;
   --color-tickets-back: #f87171;
@@ -560,12 +558,6 @@ body.has-app-settings-bar {
   border-bottom: 0;
 }
 
-#loading {
-  margin-bottom: 20px;
-
-  font-weight: bold;
-}
-
 .loading-state,
 .empty-state,
 .error-state {
@@ -655,14 +647,24 @@ body.has-app-settings-bar {
 
 .toast-root {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 30;
-  display: grid;
+  right: 16px;
+  bottom: 16px;
+  z-index: 110;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
   gap: 10px;
+  max-width: min(420px, calc(100vw - 32px));
+  max-height: min(60vh, calc(100vh - 100px));
+  padding: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .toast {
+  width: max-content;
+  max-width: 100%;
   min-width: 220px;
   padding: 12px 14px;
   border-radius: 8px;
@@ -672,6 +674,8 @@ body.has-app-settings-bar {
   opacity: 0;
   transform: translateY(8px);
   transition: opacity 180ms ease, transform 180ms ease;
+  overflow-wrap: anywhere;
+  flex-shrink: 0;
 }
 
 .toast-visible {
@@ -686,7 +690,7 @@ body.has-app-settings-bar {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  z-index: 90;
   display: grid;
   place-items: center;
   padding: 24px;
@@ -995,25 +999,31 @@ input:focus-visible {
 .fullscreen-loader {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: 85;
   display: grid;
   place-items: center;
+  padding: 24px;
   background-color: var(--color-loader-backdrop);
+  backdrop-filter: blur(4px);
 }
 
 .fullscreen-loader[hidden] {
   display: none;
 }
 
-.fullscreen-loader div {
+.fullscreen-loader__inner {
   display: grid;
   justify-items: center;
-  gap: 12px;
-  padding: 24px;
-  border: 1px solid var(--color-border-card);
-  border-radius: 8px;
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-loader);
+  gap: 16px;
+  max-width: min(360px, 100%);
+  text-align: center;
+}
+
+.fullscreen-loader__message {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .loader-spinner {

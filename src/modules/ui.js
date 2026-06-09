@@ -1,26 +1,47 @@
 let toastRoot;
 let activeModal;
 let loaderEl;
+let loaderDepth = 0;
+let loaderScrollRestore = "";
 
-export function toast(
-  message,
-  options = {}
-) {
-  const {
-    type = "success",
-    duration = 3000,
-  } = options;
+const MAX_CONCURRENT_TOASTS = 5;
+const toastPending = [];
+let activeToastCount = 0;
 
+function ensureToastRoot() {
   if (!toastRoot) {
     toastRoot =
       document.createElement("div");
-    toastRoot.className = "toast-root";
+    toastRoot.className =
+      "toast-root";
     toastRoot.setAttribute(
       "aria-live",
       "polite"
     );
     document.body.append(toastRoot);
   }
+}
+
+function flushToastQueue() {
+  while (
+    activeToastCount <
+      MAX_CONCURRENT_TOASTS &&
+    toastPending.length > 0
+  ) {
+    const payload =
+      toastPending.shift();
+
+    activeToastCount += 1;
+    mountToast(payload);
+  }
+}
+
+function mountToast({
+  message,
+  type,
+  duration,
+}) {
+  ensureToastRoot();
 
   const toastEl =
     document.createElement("div");
@@ -34,24 +55,74 @@ export function toast(
 
   toastRoot.append(toastEl);
 
-  requestAnimationFrame(
-    () => toastEl.classList.add(
+  requestAnimationFrame(() => {
+    toastEl.classList.add(
       "toast-visible"
-    )
-  );
+    );
+  });
+
+  let settled = false;
+
+  const settle = () => {
+    if (settled) {
+      return;
+    }
+
+    settled = true;
+
+    if (toastEl.isConnected) {
+      toastEl.remove();
+    }
+
+    activeToastCount -= 1;
+    flushToastQueue();
+  };
 
   setTimeout(() => {
     toastEl.classList.remove(
       "toast-visible"
     );
+
+    const onEnd = (event) => {
+      if (
+        event.propertyName !==
+        "opacity"
+      ) {
+        return;
+      }
+
+      toastEl.removeEventListener(
+        "transitionend",
+        onEnd
+      );
+      settle();
+    };
+
     toastEl.addEventListener(
       "transitionend",
-      () => toastEl.remove(),
-      {
-        once: true,
-      }
+      onEnd
     );
+
+    setTimeout(settle, 350);
   }, duration);
+}
+
+export function toast(
+  message,
+  options = {}
+) {
+  const {
+    type = "success",
+    duration = 3000,
+  } = options;
+
+  toastPending.push({
+    message,
+    type,
+    duration,
+  });
+
+  flushToastQueue();
 }
 
 export function modal({
@@ -167,18 +238,36 @@ export function showLoader(
   }
 
   loaderEl.innerHTML = `
-    <div>
+    <div class="fullscreen-loader__inner">
       <span class="loader-spinner"></span>
-      <p>${escapeHtml(message)}</p>
+      <p class="fullscreen-loader__message">
+        ${escapeHtml(message)}
+      </p>
     </div>
   `;
 
+  if (loaderDepth === 0) {
+    loaderScrollRestore =
+      document.body.style.overflow;
+    document.body.style.overflow =
+      "hidden";
+  }
+
+  loaderDepth += 1;
   loaderEl.hidden = false;
 }
 
 export function hideLoader() {
-  if (loaderEl) {
+  if (!loaderEl || loaderDepth === 0) {
+    return;
+  }
+
+  loaderDepth -= 1;
+
+  if (loaderDepth === 0) {
     loaderEl.hidden = true;
+    document.body.style.overflow =
+      loaderScrollRestore;
   }
 }
 

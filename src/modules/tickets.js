@@ -18,7 +18,9 @@ import {
 
 import {
   closeModal,
+  hideLoader,
   modal,
+  showLoader,
   toast,
 } from "./ui.js";
 
@@ -56,11 +58,6 @@ export const state = {
 const ticketsContainer =
   document.querySelector(
     "#ticketsContainer"
-  );
-
-const loadingEl =
-  document.querySelector(
-    "#loading"
   );
 
 const errorEl =
@@ -101,6 +98,8 @@ export async function initTicketsList() {
   readStateFromUrl();
   renderFilters();
   bindNewTicketButton();
+  bindNewTicketKeyboardShortcut();
+  bindTicketsArrowNavigation();
   bindDownloadCsvButton();
 
   try {
@@ -114,8 +113,8 @@ export async function initTicketsList() {
 }
 
 export async function refresh() {
-  setLoading(true);
   setError("");
+  showLoader("Loading tickets...");
   replaceUrl();
 
   try {
@@ -179,7 +178,7 @@ export async function refresh() {
         refresh
       );
   } finally {
-    setLoading(false);
+    hideLoader();
   }
 }
 
@@ -258,10 +257,245 @@ function bindNewTicketButton() {
   );
 }
 
+function bindNewTicketKeyboardShortcut() {
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (!event.altKey) {
+        return;
+      }
+
+      if (
+        event.ctrlKey ||
+        event.metaKey
+      ) {
+        return;
+      }
+
+      if (event.repeat) {
+        return;
+      }
+
+      if (
+        event.key.toLowerCase() !==
+        "n"
+      ) {
+        return;
+      }
+
+      const target = event.target;
+
+      if (
+        target instanceof Element
+      ) {
+        if (
+          target.closest(
+            "input, textarea, select, [contenteditable]"
+          )
+        ) {
+          return;
+        }
+
+        if (
+          target.closest(
+            ".modal-overlay"
+          )
+        ) {
+          return;
+        }
+      }
+
+      event.preventDefault();
+      openCreateTicketModal();
+    }
+  );
+}
+
 function bindDownloadCsvButton() {
   downloadCsvBtn?.addEventListener(
     "click",
     downloadTicketsCsv
+  );
+}
+
+function isTicketsArrowNavTarget(
+  element
+) {
+  if (!(element instanceof HTMLElement)) {
+    return false;
+  }
+
+  if (
+    !element.closest(
+      "body[data-page='tickets-list']"
+    )
+  ) {
+    return false;
+  }
+
+  if (
+    element.closest(
+      "input, textarea, select, [contenteditable], .modal-overlay"
+    )
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function getTicketsArrowNavRing() {
+  const page =
+    document.querySelector(
+      "body[data-page='tickets-list']"
+    );
+
+  if (!page) {
+    return [];
+  }
+
+  const ring = [];
+
+  const headerActions =
+    page.querySelector(
+      ".tickets-header-actions"
+    );
+
+  if (headerActions) {
+    for (const el of headerActions.querySelectorAll(
+      "a[href], button:not([disabled])"
+    )) {
+      if (
+        el instanceof HTMLElement &&
+        !el.hasAttribute("hidden") &&
+        el.getAttribute(
+          "aria-hidden"
+        ) !== "true"
+      ) {
+        ring.push(el);
+      }
+    }
+  }
+
+  for (const el of page.querySelectorAll(
+    ".tickets-table tbody a[href]"
+  )) {
+    if (
+      el instanceof HTMLElement &&
+      !el.hasAttribute("hidden")
+    ) {
+      ring.push(el);
+    }
+  }
+
+  const pagination =
+    page.querySelector(
+      "#ticketsPagination"
+    );
+
+  if (pagination) {
+    for (const el of pagination.querySelectorAll(
+      "button:not([disabled])"
+    )) {
+      if (
+        el instanceof HTMLElement &&
+        !el.hasAttribute("hidden")
+      ) {
+        ring.push(el);
+      }
+    }
+  }
+
+  return ring;
+}
+
+function bindTicketsArrowNavigation() {
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key !== "ArrowDown" &&
+        event.key !== "ArrowUp"
+      ) {
+        return;
+      }
+
+      if (
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey
+      ) {
+        return;
+      }
+
+      const target = event.target;
+
+      if (
+        !isTicketsArrowNavTarget(
+          target
+        )
+      ) {
+        return;
+      }
+
+      const ring =
+        getTicketsArrowNavRing();
+
+      if (!ring.length) {
+        return;
+      }
+
+      let index = ring.indexOf(
+        target
+      );
+
+      if (index === -1) {
+        const owner = ring.find((el) =>
+          el.contains(target)
+        );
+
+        if (!owner) {
+          return;
+        }
+
+        index = ring.indexOf(owner);
+      }
+
+      if (index === -1) {
+        return;
+      }
+
+      const delta =
+        event.key === "ArrowDown"
+          ? 1
+          : -1;
+
+      let nextIndex =
+        index + delta;
+
+      if (nextIndex < 0) {
+        nextIndex = ring.length - 1;
+      } else if (
+        nextIndex >=
+        ring.length
+      ) {
+        nextIndex = 0;
+      }
+
+      event.preventDefault();
+
+      const next = ring[nextIndex];
+
+      next.focus({
+        preventScroll: true,
+      });
+
+      next.scrollIntoView({
+        block: "nearest",
+
+        inline: "nearest",
+      });
+    }
   );
 }
 
@@ -1142,14 +1376,6 @@ function optionsMarkup(options, currentValue) {
       </option>
     `
   ).join("");
-}
-
-function setLoading(isLoading) {
-  if (!loadingEl) {
-    return;
-  }
-
-  loadingEl.hidden = !isLoading;
 }
 
 function setError(html) {
