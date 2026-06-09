@@ -85,7 +85,7 @@
       "category": "feature",
       "customerName": "Aditi Joshi",
       "customerEmail": "aditi.j@protonmail.com",
-      "assignedTo": null,
+      "assignedTo": 1,
       "createdAt": "2026-05-04T18:05:00Z",
       "updatedAt": "2026-05-04T18:05:00Z"
     },
@@ -150,7 +150,7 @@
       "category": "auth",
       "customerName": "Sameer Khan",
       "customerEmail": "sameer.khan@bank.in",
-      "assignedTo": null,
+      "assignedTo": 1,
       "createdAt": "2026-05-06T19:11:00Z",
       "updatedAt": "2026-05-06T19:11:00Z"
     },
@@ -215,7 +215,7 @@
       "category": "feature",
       "customerName": "Rahul Bhatia",
       "customerEmail": "rahul@store.in",
-      "assignedTo": null,
+      "assignedTo": 1,
       "createdAt": "2026-04-30T12:30:00Z",
       "updatedAt": "2026-04-30T12:30:00Z"
     },
@@ -280,7 +280,7 @@
       "category": "feature",
       "customerName": "Shreya Goyal",
       "customerEmail": "shreya@vc.in",
-      "assignedTo": null,
+      "assignedTo": 1,
       "createdAt": "2026-04-27T15:10:00Z",
       "updatedAt": "2026-04-27T15:10:00Z"
     },
@@ -288,14 +288,14 @@
       "id": 20,
       "title": "Mobile app freezes on launch",
       "description": "Splash screen shows for 5 seconds, then app becomes unresponsive. Force-quit needed.",
-      "status": "open",
+      "status": "resolved",
       "priority": "urgent",
       "category": "bug",
       "customerName": "Harshit Mehra",
       "customerEmail": "harshit@gmail.com",
-      "assignedTo": 3,
+      "assignedTo": 1,
       "createdAt": "2026-05-07T11:45:00Z",
-      "updatedAt": "2026-06-08T09:19:42.478Z",
+      "updatedAt": "2026-06-09T05:23:26.588Z",
       "assignee": "Priya Sharma"
     },
     {
@@ -333,10 +333,9 @@
       "category": "auth",
       "customerName": "Priyanka Bose",
       "customerEmail": "priyanka.b@health.in",
-      "assignedTo": null,
+      "assignedTo": 3,
       "createdAt": "2026-05-06T20:30:00Z",
-      "updatedAt": "2026-06-08T09:34:56.122Z",
-      "assignee": "Riya Singh"
+      "updatedAt": "2026-06-08T09:34:56.122Z"
     },
     {
       "id": 24,
@@ -360,7 +359,7 @@
       "category": "feature",
       "customerName": "Aryan Pandey",
       "customerEmail": "aryan@team.in",
-      "assignedTo": null,
+      "assignedTo": 1,
       "createdAt": "2026-05-01T16:00:00Z",
       "updatedAt": "2026-05-01T16:00:00Z"
     },

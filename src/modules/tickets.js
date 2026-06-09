@@ -210,7 +210,6 @@ export function renderTable(items) {
             <th scope="col">Status</th>
             <th scope="col">Assignee</th>
             <th scope="col">Created</th>
-            <th scope="col">Actions</th>
           </tr>
         </thead>
 
@@ -238,14 +237,6 @@ export function renderTable(items) {
                 )}</td>
                 <td>
                   ${formatDate(ticket.createdAt)}
-                </td>
-                <td>
-                  <a
-                    class="secondary-link tickets-table-edit"
-                    href="./ticket-detail.html?id=${encodeURIComponent(ticket.id)}"
-                  >
-                    Edit
-                  </a>
                 </td>
               </tr>
             `
@@ -712,8 +703,12 @@ export function buildQueryString(
   }
 
   if (values.assignee) {
+    const want =
+      String(values.assignee).trim();
+
     const user = users.find(
-      (u) => u.name === values.assignee
+      (u) =>
+        String(u.name).trim() === want
     );
 
     if (user != null) {

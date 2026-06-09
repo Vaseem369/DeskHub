@@ -548,13 +548,6 @@ body.has-app-settings-bar {
   color: var(--color-link);
 }
 
-.tickets-table-edit {
-  display: inline-block;
-  padding: 6px 10px;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
 .tickets-table tbody tr:nth-child(even) {
   background-color: var(--color-row-alt);
 }
