@@ -3,6 +3,10 @@ let activeModal;
 let loaderEl;
 let loaderDepth = 0;
 let loaderScrollRestore = "";
+let loaderShownAt = 0;
+let loaderHideTimer = null;
+
+const LOADER_MIN_VISIBLE_MS = 480;
 
 const MAX_CONCURRENT_TOASTS = 5;
 const toastPending = [];
@@ -225,6 +229,11 @@ export function modal({
 export function showLoader(
   message = "Loading..."
 ) {
+  if (loaderHideTimer !== null) {
+    clearTimeout(loaderHideTimer);
+    loaderHideTimer = null;
+  }
+
   if (!loaderEl) {
     loaderEl =
       document.createElement("div");
@@ -247,6 +256,7 @@ export function showLoader(
   `;
 
   if (loaderDepth === 0) {
+    loaderShownAt = Date.now();
     loaderScrollRestore =
       document.body.style.overflow;
     document.body.style.overflow =
@@ -264,11 +274,34 @@ export function hideLoader() {
 
   loaderDepth -= 1;
 
-  if (loaderDepth === 0) {
+  if (loaderDepth > 0) {
+    return;
+  }
+
+  const applyHide = () => {
+    loaderHideTimer = null;
+
+    if (loaderDepth !== 0) {
+      return;
+    }
+
     loaderEl.hidden = true;
     document.body.style.overflow =
       loaderScrollRestore;
-  }
+  };
+
+  const elapsed =
+    Date.now() - loaderShownAt;
+
+  const wait = Math.max(
+    0,
+    LOADER_MIN_VISIBLE_MS - elapsed
+  );
+
+  loaderHideTimer = setTimeout(
+    applyHide,
+    wait
+  );
 }
 
 export function closeModal() {
